@@ -2,6 +2,15 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// Set up environment variables for MySQL if they don't exist
+if (!process.env.MYSQL_HOST) {
+  process.env.MYSQL_HOST = 'localhost';
+  process.env.MYSQL_USER = 'root';
+  process.env.MYSQL_PASSWORD = '';
+  process.env.MYSQL_DATABASE = 'cybersafe';
+  process.env.SESSION_SECRET = 'cybersafe-secret-key';
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

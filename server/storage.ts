@@ -2,8 +2,10 @@ import { users, type User, type InsertUser, type Progress, moduleProgress, UserP
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import mysql from 'mysql2/promise';
+import connectPg from "connect-pg-simple";
 
 const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 // modify the interface with any CRUD methods
 // you might need
@@ -95,25 +97,34 @@ export class MemStorage implements IStorage {
   }
 }
 
-export class MySQLStorage implements IStorage {
+export class PostgreSQLStorage implements IStorage {
   private pool: mysql.Pool;
   sessionStore: session.Store;
   
   constructor() {
+    // Use PostgreSQL environment variables
     this.pool = mysql.createPool({
-      host: process.env.MYSQL_HOST || 'localhost',
-      user: process.env.MYSQL_USER || 'root',
-      password: process.env.MYSQL_PASSWORD || '',
-      database: process.env.MYSQL_DATABASE || 'cybersafe',
+      host: process.env.PGHOST,
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      port: parseInt(process.env.PGPORT || '5432', 10),
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
     });
     
-    // You would need a MySQL session store package
-    // For now, using memory store
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+    // Use PostgreSQL session store
+    // This will automatically create a 'session' table if it doesn't exist
+    this.sessionStore = new PostgresSessionStore({
+      conObject: {
+        host: process.env.PGHOST,
+        user: process.env.PGUSER,
+        password: process.env.PGPASSWORD,
+        database: process.env.PGDATABASE,
+        port: parseInt(process.env.PGPORT || '5432', 10),
+      },
+      createTableIfMissing: true
     });
     
     // Initialize database tables
@@ -123,9 +134,10 @@ export class MySQLStorage implements IStorage {
   private async initDatabase() {
     try {
       // Create users table if it doesn't exist
+      // Adjust syntax for PostgreSQL if needed
       await this.pool.query(`
         CREATE TABLE IF NOT EXISTS users (
-          id INT AUTO_INCREMENT PRIMARY KEY,
+          id SERIAL PRIMARY KEY,
           username VARCHAR(255) NOT NULL UNIQUE,
           password VARCHAR(255) NOT NULL,
           fullname VARCHAR(255) NOT NULL,
@@ -137,7 +149,7 @@ export class MySQLStorage implements IStorage {
       // Create module_progress table if it doesn't exist
       await this.pool.query(`
         CREATE TABLE IF NOT EXISTS module_progress (
-          id INT AUTO_INCREMENT PRIMARY KEY,
+          id SERIAL PRIMARY KEY,
           user_id INT NOT NULL,
           module_id VARCHAR(50) NOT NULL,
           progress INT NOT NULL DEFAULT 0,
@@ -155,8 +167,9 @@ export class MySQLStorage implements IStorage {
   
   async getUser(id: number): Promise<User | undefined> {
     try {
+      // PostgreSQL uses $1, $2, etc. for parameters instead of ?
       const [rows] = await this.pool.query<mysql.RowDataPacket[]>(
-        'SELECT * FROM users WHERE id = ?', 
+        'SELECT * FROM users WHERE id = $1', 
         [id]
       );
       
@@ -182,7 +195,7 @@ export class MySQLStorage implements IStorage {
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
       const [rows] = await this.pool.query<mysql.RowDataPacket[]>(
-        'SELECT * FROM users WHERE username = ?',
+        'SELECT * FROM users WHERE username = $1',
         [username]
       );
       
@@ -207,8 +220,9 @@ export class MySQLStorage implements IStorage {
   
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
-      const [result] = await this.pool.query<mysql.ResultSetHeader>(
-        'INSERT INTO users (username, password, fullname, gender, email) VALUES (?, ?, ?, ?, ?)',
+      // In PostgreSQL, we can use RETURNING to get the inserted ID
+      const result = await this.pool.query(
+        'INSERT INTO users (username, password, fullname, gender, email) VALUES ($1, $2, $3, $4, $5) RETURNING id',
         [
           insertUser.username,
           insertUser.password,
@@ -218,14 +232,22 @@ export class MySQLStorage implements IStorage {
         ]
       );
       
-      const userId = result.insertId;
+      // Extract ID from the result - result structure might be different in PostgreSQL vs MySQL
+      // This approach is more generic
+      const userId = (result[0] as any)?.id || ((result as any)?.rows?.[0]?.id);
       
-      // Initialize empty progress for the new user
+      if (!userId) {
+        throw new Error('Failed to get inserted user ID');
+      }
+      
+      // Initialize empty progress for the new user - PostgreSQL multi-value insert syntax
       await this.pool.query(
-        'INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
+        `INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) VALUES 
+         ($1, $2, $3, $4, $5), 
+         ($1, $6, $3, $4, $5)`,
         [
           userId, 'phishing', 0, 0, JSON.stringify([]),
-          userId, 'password', 0, 0, JSON.stringify([])
+          'password'
         ]
       );
       
@@ -242,7 +264,7 @@ export class MySQLStorage implements IStorage {
   async getUserProgress(userId: number): Promise<UserProgress | undefined> {
     try {
       const [rows] = await this.pool.query<mysql.RowDataPacket[]>(
-        'SELECT * FROM module_progress WHERE user_id = ?',
+        'SELECT * FROM module_progress WHERE user_id = $1',
         [userId]
       );
       
@@ -278,14 +300,14 @@ export class MySQLStorage implements IStorage {
     try {
       // Check if progress entry exists
       const [checkRows] = await this.pool.query<mysql.RowDataPacket[]>(
-        'SELECT * FROM module_progress WHERE user_id = ? AND module_id = ?',
+        'SELECT * FROM module_progress WHERE user_id = $1 AND module_id = $2',
         [userId, moduleId]
       );
       
       if (checkRows.length === 0) {
         // Create new progress entry if it doesn't exist
         await this.pool.query(
-          'INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) VALUES (?, ?, ?, ?, ?)',
+          'INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) VALUES ($1, $2, $3, $4, $5)',
           [userId, moduleId, data.progress || 0, data.score || 0, JSON.stringify(data.completedChallenges || [])]
         );
       } else {
@@ -303,7 +325,7 @@ export class MySQLStorage implements IStorage {
         };
         
         await this.pool.query(
-          'UPDATE module_progress SET progress = ?, score = ?, completed_challenges = ? WHERE user_id = ? AND module_id = ?',
+          'UPDATE module_progress SET progress = $1, score = $2, completed_challenges = $3 WHERE user_id = $4 AND module_id = $5',
           [
             updatedProgress.progress,
             updatedProgress.score,
@@ -329,7 +351,7 @@ export class MySQLStorage implements IStorage {
 }
 
 // Choose which storage implementation to use
-// You can switch between MemStorage and MySQLStorage here
-export const storage = new MemStorage(); 
-// To use MySQL instead, comment the line above and uncomment the line below:
-// export const storage = new MySQLStorage();
+// You can switch between MemStorage and PostgreSQLStorage here
+// export const storage = new MemStorage(); 
+// Using PostgreSQL for persistent storage
+export const storage = new PostgreSQLStorage();
