@@ -220,6 +220,8 @@ export class PostgreSQLStorage implements IStorage {
   
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
+      console.log('Creating user with data:', { ...insertUser, password: '***HIDDEN***' });
+      
       // In PostgreSQL, we can use RETURNING to get the inserted ID
       const result = await pool.query<{ id: number }>(
         'INSERT INTO users (username, password, fullname, gender, email) VALUES ($1, $2, $3, $4, $5) RETURNING id',
@@ -234,23 +236,47 @@ export class PostgreSQLStorage implements IStorage {
       
       // Extract ID from the result
       const userId = result.rows[0].id;
+      console.log('User created successfully with ID:', userId);
       
       if (!userId) {
         throw new Error('Failed to get inserted user ID');
       }
       
-      // Initialize empty progress for the new user - PostgreSQL multi-value insert syntax
-      await pool.query(
-        `INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) VALUES 
-         ($1, $2, $3, $4, $5), 
-         ($1, $6, $3, $4, $5),
-         ($1, $7, $3, $4, $5),
-         ($1, $8, $3, $4, $5)`,
-        [
-          userId, 'phishing', 0, 0, JSON.stringify([]),
-          'password', 'spotthescam', 'masquerading'
-        ]
-      );
+      try {
+        // Initialize empty progress for the new user - PostgreSQL multi-value insert syntax
+        console.log('Initializing module progress for userId:', userId);
+        
+        // Try inserting each module progress separately to isolate any issues
+        await pool.query(
+          `INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) 
+           VALUES ($1, $2, $3, $4, $5)`,
+          [userId, 'phishing', 0, 0, JSON.stringify([])]
+        );
+        
+        await pool.query(
+          `INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) 
+           VALUES ($1, $2, $3, $4, $5)`,
+          [userId, 'password', 0, 0, JSON.stringify([])]
+        );
+        
+        await pool.query(
+          `INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) 
+           VALUES ($1, $2, $3, $4, $5)`,
+          [userId, 'spotthescam', 0, 0, JSON.stringify([])]
+        );
+        
+        await pool.query(
+          `INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) 
+           VALUES ($1, $2, $3, $4, $5)`,
+          [userId, 'masquerading', 0, 0, JSON.stringify([])]
+        );
+        
+        console.log('Module progress initialized successfully');
+      } catch (moduleError) {
+        console.error('Error initializing module progress:', moduleError);
+        // Continue execution even if module progress initialization fails
+        // This ensures user can still be created even if progress tracking has issues
+      }
       
       return {
         id: userId,
@@ -258,7 +284,7 @@ export class PostgreSQLStorage implements IStorage {
       };
     } catch (error) {
       console.error('Error creating user:', error);
-      throw new Error('Failed to create user');
+      throw new Error(error instanceof Error ? error.message : 'Failed to create user');
     }
   }
   

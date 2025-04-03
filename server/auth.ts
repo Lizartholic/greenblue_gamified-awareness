@@ -63,20 +63,51 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const existingUser = await storage.getUserByUsername(req.body.username);
-    if (existingUser) {
-      return res.status(400).send("Username already exists");
+    try {
+      console.log('Register endpoint - received data:', { ...req.body, password: '***HIDDEN***' });
+      
+      // Validate that the required fields are present
+      if (!req.body.username || !req.body.password || !req.body.fullname || 
+          !req.body.gender || !req.body.email) {
+        console.log('Registration error: Missing required fields');
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      
+      const existingUser = await storage.getUserByUsername(req.body.username);
+      if (existingUser) {
+        console.log('Registration error: Username already exists', req.body.username);
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      // Hash the password
+      const hashedPassword = await hashPassword(req.body.password);
+      console.log('Password hashed successfully');
+      
+      // Create the user
+      const user = await storage.createUser({
+        ...req.body,
+        password: hashedPassword,
+      });
+      
+      console.log('User created successfully, attempting login');
+      
+      // Log the user in
+      req.login(user, (err) => {
+        if (err) {
+          console.error('Error during login after registration:', err);
+          return next(err);
+        }
+        console.log('User logged in successfully after registration');
+        // Don't include password in response
+        const { password, ...userWithoutPassword } = user;
+        res.status(201).json(userWithoutPassword);
+      });
+    } catch (error) {
+      console.error('Registration endpoint error:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Registration failed" 
+      });
     }
-
-    const user = await storage.createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
-    });
-
-    req.login(user, (err) => {
-      if (err) return next(err);
-      res.status(201).json(user);
-    });
   });
 
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
