@@ -59,7 +59,9 @@ export class MemStorage implements IStorage {
       overallProgress: 0,
       modules: {
         phishing: { progress: 0, score: 0, completedChallenges: [] },
-        password: { progress: 0, score: 0, completedChallenges: [] }
+        password: { progress: 0, score: 0, completedChallenges: [] },
+        spotthescam: { progress: 0, score: 0, completedChallenges: [] },
+        masquerading: { progress: 0, score: 0, completedChallenges: [] }
       }
     });
     
@@ -76,7 +78,9 @@ export class MemStorage implements IStorage {
       overallProgress: 0,
       modules: {
         phishing: { progress: 0, score: 0, completedChallenges: [] },
-        password: { progress: 0, score: 0, completedChallenges: [] }
+        password: { progress: 0, score: 0, completedChallenges: [] },
+        spotthescam: { progress: 0, score: 0, completedChallenges: [] },
+        masquerading: { progress: 0, score: 0, completedChallenges: [] }
       }
     };
     
@@ -239,10 +243,12 @@ export class PostgreSQLStorage implements IStorage {
       await pool.query(
         `INSERT INTO module_progress (user_id, module_id, progress, score, completed_challenges) VALUES 
          ($1, $2, $3, $4, $5), 
-         ($1, $6, $3, $4, $5)`,
+         ($1, $6, $3, $4, $5),
+         ($1, $7, $3, $4, $5),
+         ($1, $8, $3, $4, $5)`,
         [
           userId, 'phishing', 0, 0, JSON.stringify([]),
-          'password'
+          'password', 'spotthescam', 'masquerading'
         ]
       );
       

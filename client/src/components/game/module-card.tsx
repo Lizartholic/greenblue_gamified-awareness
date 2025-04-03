@@ -40,7 +40,7 @@ export default function ModuleCard({ module, progress }: ModuleProps) {
         </div>
       </div>
       <div className="p-5">
-        <h3 className="text-lg font-bold text-foreground font-heading mb-1">{module.title}</h3>
+        <h3 className="text-lg font-bold text-foreground font-heading mb-1" dangerouslySetInnerHTML={{ __html: module.title }}></h3>
         <p className="text-gray-600 text-sm mb-4">{module.description}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-sm text-gray-500">

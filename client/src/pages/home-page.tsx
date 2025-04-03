@@ -11,36 +11,46 @@ import bgImage from '../assets/greenphoto.png';
 const gameModules = [
   {
     id: 'phishing',
-    title: 'Spot the Scam',
-    description: 'Learn to identify phishing attempts and suspicious messages.',
+    title: 'Phishing Frenzy 🎣',
+    description: 'Learn to identify phishing emails and suspicious messages before they hook you!',
     icon: 'fa-fish',
-    iconColor: 'text-orange-500',
-    bgGradient: 'from-yellow-400/90 to-orange-500/90',
+    iconColor: 'text-blue-500',
+    bgGradient: 'from-blue-400/90 to-cyan-500/90',
     duration: '~15 min',
     path: '/modules/phishing',
     coverImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
   },
   {
     id: 'password',
-    title: 'Password Challenge',
-    description: 'Create strong, unique passwords and understand security best practices.',
-    icon: 'fa-key',
+    title: 'Password Challenge 🔐',
+    description: 'Create strong, unique passwords and learn how to manage them securely.',
+    icon: 'fa-lock',
     iconColor: 'text-teal-500',
-    bgGradient: 'from-primary/90 to-teal-500/90',
+    bgGradient: 'from-teal-400/90 to-green-500/90',
     duration: '~10 min',
     path: '/modules/password',
     coverImage: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
   },
   {
-    id: 'data-privacy',
-    title: 'Data Privacy',
-    description: 'Protect your personal information and manage privacy settings.',
-    icon: 'fa-user-shield',
-    iconColor: 'text-indigo-500',
-    bgGradient: 'from-purple-500/90 to-indigo-600/90',
+    id: 'spotthescam',
+    title: 'Spot the Scam 👁️',
+    description: 'Train your eye to recognize fake websites, fraudulent messages and common scams.',
+    icon: 'fa-eye',
+    iconColor: 'text-amber-500',
+    bgGradient: 'from-amber-400/90 to-orange-500/90',
     duration: '~12 min',
-    path: '',
-    disabled: true,
+    path: '/modules/spotthescam',
+    coverImage: 'https://images.unsplash.com/photo-1562577308-c8b2614b9b9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
+  },
+  {
+    id: 'masquerading',
+    title: 'Masquerade Unmasked 🎭',
+    description: 'Learn how to detect threats that disguise themselves as trusted entities.',
+    icon: 'fa-mask',
+    iconColor: 'text-purple-500',
+    bgGradient: 'from-purple-400/90 to-indigo-600/90',
+    duration: '~15 min',
+    path: '/modules/masquerading',
     coverImage: 'https://images.unsplash.com/photo-1563237023-b1e970526dcb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1469&q=80'
   }
 ];
@@ -59,10 +69,12 @@ export default function HomePage() {
       } catch (error) {
         // Fallback for demo purposes
         return { 
-          overallProgress: 35,
+          overallProgress: 25,
           modules: {
             phishing: { progress: 45, score: 450 },
-            password: { progress: 60, score: 320 }
+            password: { progress: 60, score: 320 },
+            spotthescam: { progress: 15, score: 150 },
+            masquerading: { progress: 5, score: 50 }
           }
         };
       }

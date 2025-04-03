@@ -68,7 +68,7 @@ export default function AuthPage() {
         <div className="hidden md:flex md:w-1/2 bg-transparent text-white p-10 flex-col justify-center">
           <h2 className="text-4xl font-bold mb-6">Stay Safe Online</h2>
           <p className="text-white/90 text-lg mb-4">
-            Learn essential cyber hygiene skills through interactive challenges
+            Learn essential cyber hygiene skills through four fun, interactive challenges
           </p>
           <ul className="space-y-3">
             <li className="flex items-center">
@@ -77,7 +77,7 @@ export default function AuthPage() {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              Learn to identify phishing attempts
+              <span>🎣 Phishing Frenzy - Identify dangerous email attacks</span>
             </li>
             <li className="flex items-center">
               <div className="rounded-full bg-white/20 p-1 mr-3">
@@ -85,7 +85,7 @@ export default function AuthPage() {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              Create strong, secure passwords
+              <span>🔐 Password Challenge - Create strong, secure passwords</span>
             </li>
             <li className="flex items-center">
               <div className="rounded-full bg-white/20 p-1 mr-3">
@@ -93,7 +93,15 @@ export default function AuthPage() {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              Protect your personal information
+              <span>👁️ Spot the Scam - Recognize fake sites and messages</span>
+            </li>
+            <li className="flex items-center">
+              <div className="rounded-full bg-white/20 p-1 mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span>🎭 Masquerade Unmasked - Detect disguised threats</span>
             </li>
           </ul>
         </div>
