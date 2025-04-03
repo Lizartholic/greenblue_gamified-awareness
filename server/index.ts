@@ -2,12 +2,12 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
-// Set up environment variables for MySQL if they don't exist
-if (!process.env.MYSQL_HOST) {
-  process.env.MYSQL_HOST = 'localhost';
-  process.env.MYSQL_USER = 'root';
-  process.env.MYSQL_PASSWORD = '';
-  process.env.MYSQL_DATABASE = 'cybersafe';
+// Load environment variables from .env file
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Set up default session secret if not provided
+if (!process.env.SESSION_SECRET) {
   process.env.SESSION_SECRET = 'cybersafe-secret-key';
 }
 
@@ -69,11 +69,23 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  
+  // Check if running in Replit environment or local
+  const isReplit = process.env.REPL_ID !== undefined;
+  
+  if (isReplit) {
+    // Replit configuration
+    server.listen({
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    }, () => {
+      log(`serving on port ${port}`);
+    });
+  } else {
+    // Local development configuration - use localhost
+    server.listen(port, () => {
+      log(`serving on localhost:${port}`);
+    });
+  }
 })();
