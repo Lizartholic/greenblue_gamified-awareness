@@ -1,7 +1,9 @@
-import { Pool } from 'pg';  // Use standard pg package for local PostgreSQL
-import { drizzle } from 'drizzle-orm/pg';  // Correct import for pg
+import pg from 'pg';  // Use standard pg package for local PostgreSQL
+import { drizzle } from 'drizzle-orm/node-postgres';  // Correct import for node-postgres
 import * as schema from "@shared/schema";
 import dotenv from 'dotenv';
+
+const { Pool } = pg;
 
 // Load environment variables from .env file
 dotenv.config();
