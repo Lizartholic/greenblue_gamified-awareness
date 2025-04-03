@@ -282,11 +282,23 @@ export class PostgreSQLStorage implements IStorage {
       
       const modules: ModuleProgress = {};
       result.rows.forEach((row) => {
-        modules[row.module_id] = {
-          progress: row.progress,
-          score: row.score,
-          completedChallenges: JSON.parse(row.completed_challenges || '[]')
-        };
+        try {
+          const completedChallenges = row.completed_challenges || '[]';
+          modules[row.module_id] = {
+            progress: row.progress,
+            score: row.score,
+            completedChallenges: typeof completedChallenges === 'string' 
+              ? JSON.parse(completedChallenges) 
+              : Array.isArray(completedChallenges) ? completedChallenges : []
+          };
+        } catch (error) {
+          console.error(`Error parsing completed challenges for module ${row.module_id}:`, error);
+          modules[row.module_id] = {
+            progress: row.progress,
+            score: row.score,
+            completedChallenges: []
+          };
+        }
       });
       
       // Calculate overall progress
@@ -328,10 +340,17 @@ export class PostgreSQLStorage implements IStorage {
       } else {
         // Update existing progress
         const row = checkResult.rows[0];
+        let completedChallenges = [];
+        try {
+          completedChallenges = JSON.parse(row.completed_challenges || '[]');
+        } catch (error) {
+          console.error(`Error parsing completed challenges on update for module ${moduleId}:`, error);
+        }
+        
         const currentProgress = {
           progress: row.progress,
           score: row.score,
-          completedChallenges: JSON.parse(row.completed_challenges || '[]')
+          completedChallenges
         };
         
         const updatedProgress = {
