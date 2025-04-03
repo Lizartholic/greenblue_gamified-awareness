@@ -1,9 +1,11 @@
-import pg from 'pg';  // Use standard pg package for local PostgreSQL
+// For ESM imports, we need to use a different approach for pg
+import pkg from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';  // Correct import for node-postgres
 import * as schema from "@shared/schema";
 import dotenv from 'dotenv';
 
-const { Pool } = pg;
+// Extract Pool from the pg package this way for ESM compatibility
+const { Pool } = pkg;
 
 // Load environment variables from .env file
 dotenv.config();
