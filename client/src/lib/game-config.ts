@@ -9,7 +9,20 @@ export const gameModules = [
     bgGradient: 'from-blue-400/90 to-cyan-500/90',
     duration: '~15 min',
     path: '/modules/phishing',
-    coverImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
+    difficulty: 'Beginner',
+    coverImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
+    scenarios: [
+      {
+        id: 1,
+        title: 'Bank Email Scam',
+        description: 'Identify a fake bank notification email'
+      },
+      {
+        id: 2,
+        title: 'Package Delivery Scam',
+        description: 'Spot a fraudulent delivery notification'
+      }
+    ]
   },
   {
     id: 'password',

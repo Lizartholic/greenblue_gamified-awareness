@@ -13,6 +13,12 @@ interface ModuleProps {
     path: string;
     disabled?: boolean;
     coverImage: string;
+    difficulty: string;
+    scenarios: Array<{
+      id: number;
+      title: string;
+      description: string;
+    }>;
   };
   progress: number;
 }
@@ -25,10 +31,22 @@ export default function ModuleCard({ module, progress }: ModuleProps) {
       setLocation(module.path);
     }
   };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch(difficulty.toLowerCase()) {
+      case 'beginner': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
   
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="h-40 relative overflow-hidden">
+        <span className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(module.difficulty)}`}>
+          {module.difficulty}
+        </span>
         <div className={`absolute inset-0 bg-gradient-to-br ${module.bgGradient}`}></div>
         <img 
           src={module.coverImage}
