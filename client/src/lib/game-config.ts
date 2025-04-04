@@ -70,7 +70,9 @@ export const gameModules = [
         title: 'Fake Websites',
         description: 'Learn to spot fraudulent websites'
       }
-    ]
+    ] '~12 min',
+    path: '/modules/spotthescam',
+    coverImage: 'https://images.unsplash.com/photo-1562577308-c8b2614b9b9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
   },
   {
     id: 'masquerading',
