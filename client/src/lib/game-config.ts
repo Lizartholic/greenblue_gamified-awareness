@@ -33,20 +33,7 @@ export const gameModules = [
     bgGradient: 'from-teal-400/90 to-green-500/90',
     duration: '~10 min',
     path: '/modules/password',
-    difficulty: 'Intermediate',
-    coverImage: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
-    scenarios: [
-      {
-        id: 1,
-        title: 'Password Strength',
-        description: 'Create and test strong passwords'
-      },
-      {
-        id: 2,
-        title: 'Password Manager',
-        description: 'Learn to use password managers effectively'
-      }
-    ]
+    coverImage: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
   },
   {
     id: 'spotthescam',
@@ -56,21 +43,6 @@ export const gameModules = [
     iconColor: 'text-amber-500',
     bgGradient: 'from-amber-400/90 to-orange-500/90',
     duration: '~12 min',
-    path: '/modules/spotthescam',
-    difficulty: 'Advanced',
-    coverImage: 'https://images.unsplash.com/photo-1562577308-c8b2614b9b9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
-    scenarios: [
-      {
-        id: 1,
-        title: 'Social Engineering',
-        description: 'Identify social engineering tactics'
-      },
-      {
-        id: 2,
-        title: 'Fake Websites',
-        description: 'Learn to spot fraudulent websites'
-      }
-    ] '~12 min',
     path: '/modules/spotthescam',
     coverImage: 'https://images.unsplash.com/photo-1562577308-c8b2614b9b9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
   },
