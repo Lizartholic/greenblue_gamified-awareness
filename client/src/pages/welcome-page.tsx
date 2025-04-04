@@ -1,8 +1,18 @@
 
 import { useLocation } from 'wouter';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function WelcomePage() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+
+  const handleStartGame = () => {
+    if (user) {
+      setLocation('/dashboard');
+    } else {
+      setLocation('/auth');
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/90 to-secondary/90 text-white p-4">
@@ -13,7 +23,7 @@ export default function WelcomePage() {
         </p>
         <div className="space-y-4">
           <button
-            onClick={() => setLocation('/auth')}
+            onClick={handleStartGame}
             className="bg-white text-primary hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold text-lg transition-colors"
           >
             Start Game
