@@ -2,7 +2,8 @@ import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
-import HomePage from "@/pages/home-page";
+import WelcomePage from "@/pages/welcome-page";
+import DashboardPage from "@/pages/dashboard-page";
 import PhishingModule from "@/pages/phishing-module";
 import PasswordModule from "@/pages/password-module";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -13,8 +14,9 @@ import { queryClient } from "./lib/queryClient";
 function Router() {
   return (
     <Switch>
+      <Route path="/" component={WelcomePage} />
       <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/dashboard" component={DashboardPage} />
       <ProtectedRoute path="/modules/phishing" component={PhishingModule} />
       <ProtectedRoute path="/modules/password" component={PasswordModule} />
       <Route component={NotFound} />
